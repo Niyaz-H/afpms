@@ -1,4 +1,4 @@
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 from django.db.models import Q, Sum, F
 from .models import ProductionBatch
 from django.db.models import Value as V
@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from .serializers import ProductionBatchSerializer
 from .permissions import IsFactoryManager
+from .services import get_demand_forecast
 
 class ProductionBatchListView(ListView):
     """
@@ -65,3 +66,19 @@ class ProductionBatchViewSet(viewsets.ModelViewSet):
             {'status': f'Production started for batch #{batch.id}'},
             status=status.HTTP_200_OK
         )
+
+class DemandForecastView(TemplateView):
+    """
+    A view to display the simulated demand forecast.
+    """
+    template_name = 'production_planner/demand_forecast.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        # In a real app, you'd pull this data from your models
+        product_history = "high_demand_last_season"
+        seasonal_trends = "winter_coming"
+        
+        context['forecast'] = get_demand_forecast(product_history, seasonal_trends)
+        return context

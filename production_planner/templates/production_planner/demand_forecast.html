@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demand Forecast</title>
+</head>
+<body>
+    <h1>Simulated Demand Forecast</h1>
+    
+    {% if forecast %}
+        <p><strong>Predicted Demand Score:</strong> {{ forecast.predicted_demand_score }}</p>
+        <p><strong>Confidence:</strong> {{ forecast.confidence }}</p>
+        <p><strong>Seasonal Adjustment:</strong> {{ forecast.seasonal_adjustment }}</p>
+    {% else %}
+        <p>Could not retrieve demand forecast.</p>
+    {% endif %}
+</body>
+</html>
