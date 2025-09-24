@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'core',
     'inventory',
     'production_planner',
+    # 3rd Party Apps
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
