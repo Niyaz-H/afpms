@@ -1,4 +1,5 @@
 from django.views.generic import ListView
+from django.db.models import Q
 from .models import ProductionBatch
 
 class ProductionBatchListView(ListView):
@@ -12,6 +13,14 @@ class ProductionBatchListView(ListView):
     def get_queryset(self):
         """
         Overrides the default queryset to include select_related and prefetch_related
-        for query optimization.
+        for query optimization, and to add advanced filtering.
         """
-        return ProductionBatch.objects.select_related('product', 'created_by').prefetch_related('materials')
+        queryset = ProductionBatch.objects.select_related('product', 'created_by').prefetch_related('materials')
+        
+        # Filter for batches created by the current user OR batches with quantity > 100
+        if self.request.user.is_authenticated:
+            queryset = queryset.filter(
+                Q(created_by=self.request.user) | Q(quantity__gt=100)
+            )
+            
+        return queryset
