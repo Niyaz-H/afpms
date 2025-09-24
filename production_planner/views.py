@@ -1,6 +1,8 @@
-from django.views.generic import ListView, TemplateView
+from django.views.generic import ListView, TemplateView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
 from django.db.models import Q, Sum, F
-from .models import ProductionBatch
+from .models import Product, ProductionBatch
+from .forms import ProductForm
 from django.db.models import Value as V
 from django.db.models.functions import Coalesce
 from rest_framework import viewsets, status
@@ -82,3 +84,21 @@ class DemandForecastView(TemplateView):
         
         context['forecast'] = get_demand_forecast(product_history, seasonal_trends)
         return context
+
+# Product CRUD Views
+class ProductCreateView(CreateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'production_planner/product_form.html'
+    success_url = reverse_lazy('production_planner:batch-list')
+
+class ProductUpdateView(UpdateView):
+    model = Product
+    form_class = ProductForm
+    template_name = 'production_planner/product_form.html'
+    success_url = reverse_lazy('production_planner:batch-list')
+
+class ProductDeleteView(DeleteView):
+    model = Product
+    template_name = 'production_planner/product_confirm_delete.html'
+    success_url = reverse_lazy('production_planner:batch-list')
