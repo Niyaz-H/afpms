@@ -6,6 +6,10 @@
 </head>
 <body>
     <h1>All Production Batches</h1>
+
+    {% if total_quantity_all_batches %}
+        <h2>Total Quantity of All Batches: {{ total_quantity_all_batches }}</h2>
+    {% endif %}
     
     {% if batches %}
         <ul>
@@ -16,6 +20,7 @@
                         <li>Product: {{ batch.product.title }}</li>
                         <li>Created By: {{ batch.created_by.username }}</li>
                         <li>Quantity: {{ batch.quantity }}</li>
+                        <li>Total Material Cost: ${{ batch.total_material_cost|floatformat:2 }}</li>
                         <li>Materials:
                             <ul>
                                 {% for material in batch.materials.all %}
