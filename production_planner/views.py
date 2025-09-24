@@ -7,6 +7,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .serializers import ProductionBatchSerializer
+from .permissions import IsFactoryManager
 
 class ProductionBatchListView(ListView):
     """
@@ -50,6 +51,7 @@ class ProductionBatchViewSet(viewsets.ModelViewSet):
     """
     queryset = ProductionBatch.objects.all()
     serializer_class = ProductionBatchSerializer
+    permission_classes = [IsFactoryManager]
 
     @action(detail=True, methods=['post'])
     def start_production(self, request, pk=None):
