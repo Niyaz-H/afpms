@@ -1,6 +1,9 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from rest_framework.test import APITestCase
+from rest_framework.authtoken.models import Token
+from rest_framework import status
 from .models import Product, ProductionBatch, BatchMaterial
 from inventory.models import Material, Inventory
 
@@ -36,3 +39,48 @@ class ProductionBatchModelTest(TestCase):
         # Check product inventory
         product_content_type = ContentType.objects.get_for_model(Product)
         self.assertEqual(Inventory.objects.get(content_type=product_content_type, object_id=self.product.id).stock_level, 60)
+
+class ProductionBatchAPITest(APITestCase):
+    def setUp(self):
+        self.factory_manager_user = User.objects.create_user(username='factory_manager', password='password')
+        self.factory_manager_user.profile.role = 'FACTORY_MANAGER'
+        self.factory_manager_user.profile.save()
+        self.factory_manager_token = Token.objects.create(user=self.factory_manager_user)
+
+        self.demand_planner_user = User.objects.create_user(username='demand_planner', password='password')
+        self.demand_planner_user.profile.role = 'DEMAND_PLANNER'
+        self.demand_planner_user.profile.save()
+        self.demand_planner_token = Token.objects.create(user=self.demand_planner_user)
+        
+        self.product = Product.objects.create(title='API Test Product', target_co2_reduction=2.0)
+
+    def test_demand_planner_cannot_create_batch(self):
+        """
+        Ensure demand planners cannot create new production batches.
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.demand_planner_token.key)
+        url = '/production/api/batches/'
+        data = {'product_id': self.product.id, 'quantity': 100}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_factory_manager_can_create_batch(self):
+        """
+        Ensure factory managers can create new production batches.
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.factory_manager_token.key)
+        url = '/production/api/batches/'
+        data = {'product_id': self.product.id, 'quantity': 100}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_quantity_validation(self):
+        """
+        Test that the quantity validation in the serializer works.
+        """
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.factory_manager_token.key)
+        url = '/production/api/batches/'
+        data = {'product_id': self.product.id, 'quantity': -10}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('quantity', response.data)

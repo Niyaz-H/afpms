@@ -64,6 +64,9 @@ class ProductionBatchViewSet(viewsets.ModelViewSet):
     serializer_class = ProductionBatchSerializer
     permission_classes = [IsFactoryManager]
 
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
     @action(detail=True, methods=['post'])
     def start_production(self, request, pk=None):
         """

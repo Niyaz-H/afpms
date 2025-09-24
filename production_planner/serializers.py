@@ -14,6 +14,9 @@ class MaterialSerializer(serializers.ModelSerializer):
 
 class ProductionBatchSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
+    product_id = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(), source='product', write_only=True
+    )
     materials = MaterialSerializer(many=True, read_only=True)
 
     class Meta:
@@ -21,13 +24,13 @@ class ProductionBatchSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'product',
+            'product_id',
             'quantity',
             'materials',
             'created_by',
             'created_at',
-            'total_material_cost'
         ]
-        read_only_fields = ['created_by', 'created_at', 'total_material_cost']
+        read_only_fields = ['created_by', 'created_at']
 
     def validate_quantity(self, value):
         """
