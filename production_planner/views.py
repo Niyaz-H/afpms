@@ -11,6 +11,9 @@ from rest_framework.response import Response
 from .serializers import ProductionBatchSerializer
 from .permissions import IsFactoryManager
 from .services import get_demand_forecast
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.core.cache import cache
 
 class ProductionBatchListView(ListView):
     """
@@ -42,10 +45,15 @@ class ProductionBatchListView(ListView):
 
     def get_context_data(self, **kwargs):
         """
-        Adds aggregated data to the context.
+        Adds aggregated data to the context, with low-level caching for the total quantity.
         """
         context = super().get_context_data(**kwargs)
-        context['total_quantity_all_batches'] = ProductionBatch.objects.aggregate(total_quantity=Sum('quantity'))['total_quantity']
+        total_quantity = cache.get('total_quantity_all_batches')
+        if not total_quantity:
+            total_quantity = ProductionBatch.objects.aggregate(total_quantity=Sum('quantity'))['total_quantity']
+            cache.set('total_quantity_all_batches', total_quantity, 60 * 5) # Cache for 5 minutes
+        
+        context['total_quantity_all_batches'] = total_quantity
         return context
 
 class ProductionBatchViewSet(viewsets.ModelViewSet):
@@ -69,6 +77,7 @@ class ProductionBatchViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
 
+@method_decorator(cache_page(60 * 15), name='dispatch') # Cache this view for 15 minutes
 class DemandForecastView(TemplateView):
     """
     A view to display the simulated demand forecast.
