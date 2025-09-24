@@ -1,22 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>A-FPMS Home</title>
-</head>
-<body>
-    <h1>Welcome to the Agile Factory Production Management System</h1>
-    <p>You are logged in as: {{ user.username }}</p>
-    
-    {% if user.profile.role == 'FACTORY_MANAGER' %}
-        <p><a href="{% url 'core:dashboard' %}">Go to Factory Manager Dashboard</a></p>
-    {% else %}
-        <p>You are a Demand Planner. You have read-only access.</p>
-    {% endif %}
+{% extends 'core/base.html' %}
 
-    <form action="{% url 'logout' %}" method="post">
-        {% csrf_token %}
-        <button type="submit">Logout</button>
-    </form>
-</body>
-</html>
+{% block title %}A-FPMS Home{% endblock %}
+
+{% block content %}
+    <div class="bg-white p-6 rounded-lg shadow-lg">
+        <h1 class="text-2xl font-bold mb-4">Welcome to the Agile Factory Production Management System</h1>
+        <p class="text-gray-700">You are logged in as: {{ user.username }}</p>
+        
+        {% if user.profile.role == 'FACTORY_MANAGER' %}
+            <p class="mt-4"><a href="{% url 'core:dashboard' %}" class="text-blue-500 hover:underline">Go to Factory Manager Dashboard</a></p>
+        {% else %}
+            <p class="mt-4 text-gray-600">You are a Demand Planner. You have read-only access.</p>
+        {% endif %}
+    </div>
+{% endblock %}
