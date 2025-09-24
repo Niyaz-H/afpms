@@ -122,3 +122,14 @@ The primary API endpoint will revolve around the `ProductionBatch` resource, man
 *   **Custom Action:**
     *   `POST /api/v1/production-batches/{pk}/start_production/`: A custom action to trigger the start of a production run.
 *   **Authentication:** Token-based authentication will be required for all API endpoints.
+
+## 7. Deployment Architecture
+
+The application will be deployed to AWS using the following architecture:
+
+*   **Compute:** The Django application will be run as a Docker container on an **AWS EC2** instance. **Gunicorn** will be used as the WSGI server.
+*   **Database:** A managed **AWS RDS** instance running **PostgreSQL** will be used for the production database.
+*   **Static & Media Files:** Static and media files will be served from an **AWS S3** bucket.
+*   **CDN:** **AWS CloudFront** will be used as a Content Delivery Network (CDN) to cache static files and serve them from edge locations, reducing latency for users.
+*   **DNS:** **AWS Route 53** will be used for DNS management.
+*   **CI/CD:** The GitHub Actions workflow will be configured to automatically build the Docker image and deploy it to the EC2 instance on a successful merge to the `main` branch.
