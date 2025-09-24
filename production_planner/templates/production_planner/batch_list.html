@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Production Batches</title>
+</head>
+<body>
+    <h1>All Production Batches</h1>
+    
+    {% if batches %}
+        <ul>
+            {% for batch in batches %}
+                <li>
+                    <strong>Batch #{{ batch.id }}</strong>
+                    <ul>
+                        <li>Product: {{ batch.product.title }}</li>
+                        <li>Created By: {{ batch.created_by.username }}</li>
+                        <li>Quantity: {{ batch.quantity }}</li>
+                        <li>Materials:
+                            <ul>
+                                {% for material in batch.materials.all %}
+                                    <li>{{ material.name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No production batches found.</p>
+    {% endif %}
+</body>
+</html>

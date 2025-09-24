@@ -1,7 +1,8 @@
 from django.urls import path
+from .views import ProductionBatchListView
 
 app_name = 'production_planner'
 
 urlpatterns = [
-    # Add production_planner URLs here
+    path('batches/', ProductionBatchListView.as_view(), name='batch-list'),
 ]
